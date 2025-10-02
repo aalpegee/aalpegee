@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💌 Tatlı Mektup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #ffeef2 0%, #f8e8ff 50%, #ffe0f0 100%);
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Arka plan kalp animasyonu */
+        .floating-hearts {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .heart {
+            position: absolute;
+            color: rgba(255, 182, 193, 0.3);
+            font-size: 20px;
+            animation: float 15s linear infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Ana container */
+        .container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Zarf tasarımı */
+        .envelope-container {
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .envelope-container:hover {
+            transform: translateY(-6px) rotate(-1deg);
+        }
+
+        .envelope {
+            width: 320px;
+            height: 200px;
+            position: relative;
+            background: linear-gradient(135deg, #fff0f5, #ffeef7);
+            border-radius: 15px;
+            box-shadow: 
+                0 10px 30px rgba(255, 182, 193, 0.3),
+                0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .envelope::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 45%, rgba(255, 182, 193, 0.1) 50%, transparent 55%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        /* Zarf kapağı */
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(135deg, #ffb6c1, #ffc0cb);
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            transform-origin: 50% 0;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 3;
+        }
+
+        /* Kalp mührü */
+        .heart-seal {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff1744, #ff6b9d);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            transform: translateX(-50%) rotate(-45deg);
+            box-shadow: 0 5px 15px rgba(255, 23, 68, 0.4);
+            z-index: 4;
+            animation: heartBeat 2s ease-in-out infinite;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: translateX(-50%) rotate(-45deg) scale(1); }
+            50% { transform: translateX(-50%) rotate(-45deg) scale(1.1); }
+        }
+
+        /* Zarf içi */
+        .envelope-body {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(135deg, #fff, #fefefe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .envelope-text {
+            font-family: 'Dancing Script', cursive;
+            font-size: 18px;
+            color: #d63384;
+            text-align: center;
+            opacity: 0.7;
+        }
+
+        /* Açılmış zarf durumu */
+        .envelope-container.opened .envelope-flap {
+            transform: rotateX(180deg);
+        }
+
+        .envelope-container.opened .envelope {
+            transform: scale(1.1);
+        }
+
+        /* Yeni: daha zarif açılış animasyonları */
+        @keyframes flapOpen {
+            0% { transform: rotateX(0deg) translateY(0); }
+            60% { transform: rotateX(-160deg) translateY(-10%); }
+            100% { transform: rotateX(-180deg) translateY(-8%); }
+        }
+        @keyframes envelopePop {
+            0% { transform: scale(1) translateY(0); filter: drop-shadow(0 0 0 rgba(0,0,0,0)); }
+            60% { transform: scale(1.06) translateY(-6px); filter: drop-shadow(0 18px 36px rgba(0,0,0,0.06)); }
+            100% { transform: scale(1.03) translateY(-4px); }
+        }
+        @keyframes sealFade {
+            0% { opacity: 1; transform: translateX(-50%) rotate(-45deg) scale(1); }
+            80% { opacity: .6; transform: translateX(-50%) rotate(-45deg) scale(1.15); }
+            100% { opacity: 0; transform: translateX(-50%) rotate(-45deg) scale(0.4); }
+        }
+        @keyframes letterIn {
+            0% { transform: translate(-50%, -55%) scale(.96); opacity: 0; }
+            60% { transform: translate(-50%, -50%) scale(1.02); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        /* opening sürecinde uygulanacak görsel efektler */
+        .envelope-container.opening .envelope-flap {
+            animation: flapOpen 700ms cubic-bezier(.2,.9,.2,1) forwards;
+            transform-origin: 50% 0;
+            z-index: 5;
+        }
+        .envelope-container.opening .envelope {
+            animation: envelopePop 700ms cubic-bezier(.2,.9,.2,1) forwards;
+        }
+        .envelope-container.opening .heart-seal {
+            animation: sealFade 600ms ease-out forwards;
+            transition: none;
+        }
+
+        /* daha yumuşak mektup giriş animasyonu */
+        .letter {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 400px;
+            max-width: 90vw;
+            background: linear-gradient(135deg, #ffffff, #fefefe);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 
+                0 20px 40px rgba(255, 182, 193, 0.3),
+                0 10px 20px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 20;
+            border: 2px solid rgba(255, 182, 193, 0.2);
+        }
+
+        .letter.show {
+            opacity: 1;
+            visibility: visible;
+            animation: letterIn 600ms cubic-bezier(.2,.9,.2,1) forwards;
+            transform: translate(-50%, -50%) scale(1);
+            box-shadow: 0 30px 60px rgba(108,40,84,0.12), 0 10px 20px rgba(0,0,0,0.06);
+            backdrop-filter: blur(1px);
+        }
+
+        .letter-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px dashed #ffb6c1;
+        }
+
+        .letter-title {
+            display: inline-block;
+            animation: titleFloat 4s ease-in-out infinite;
+            white-space: nowrap; /* emojilerin alt satıra geçmesini engeller */
+            /* masaüstü için okunaklı bir başlangıç boyutu (isteğe göre ayarlanır) */
+            font-size: 20px;
+        }
+
+        .letter-content {
+            line-height: 1.8;
+            color: #6c2c54;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .letter-content p {
+            margin-bottom: 15px;
+            font-size: 16px;
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 280ms ease, transform 280ms ease;
+            white-space: pre-wrap;
+        }
+        .letter-content p.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .love-button {
+            width: 100%;
+            background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            color: white;
+            font-family: 'Dancing Script', cursive;
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(255, 107, 157, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .love-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(255, 107, 157, 0.5);
+        }
+
+        .love-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.6s ease;
+        }
+
+        .love-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Kapatma butonu */
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: rgba(255, 182, 193, 0.2);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            color: #d63384;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 182, 193, 0.4);
+            transform: scale(1.1);
+        }
+
+        /* Sevgi mesajı overlay */
+        .love-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .love-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Canvas animasyonu (overlay içinde çalışacak) */
+        canvas#heart {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1; /* love-message üzerinde olmasın */
+            background-color: rgba(0,0,0,.2); /* değişiklik: kaynak koda uygun */
+        }
+
+        /* Overlay içindeki mesajın canvas üstünde görünmesi için */
+        .love-message {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+            /* masaüstü için aşağı kaydırma azaltıldı: önceki 48vh -> yeni 36vh */
+            transform: translateY(36vh) scale(0.5);
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .love-overlay.show .love-message {
+            transform: translateY(36vh) scale(1);
+        }
+
+        .love-message h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 48px; /* biraz daha küçük */
+            margin-bottom: 20px;
+            /* koyu neon pembe renk */
+            color: #ff1e6f;
+            /* güçlü neon glow */
+            text-shadow:
+                0 0 8px rgba(255,30,111,0.95),
+                0 0 20px rgba(255,30,111,0.85),
+                0 0 40px rgba(255,30,111,0.65),
+                0 8px 30px rgba(108,40,84,0.15);
+            animation: neonPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes neonPulse {
+            0% {
+                text-shadow:
+                    0 0 8px rgba(255,30,111,0.9),
+                    0 0 18px rgba(255,30,111,0.75);
+            }
+            50% {
+                text-shadow:
+                    0 0 12px rgba(255,30,111,1),
+                    0 0 30px rgba(255,30,111,0.9),
+                    0 0 60px rgba(255,30,111,0.6);
+            }
+            100% {
+                text-shadow:
+                    0 0 8px rgba(255,30,111,0.9),
+                    0 0 18px rgba(255,30,111,0.75);
+            }
+        }
+
+        /* Süzülen kalpler */
+        .floating-love-hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .love-heart {
+            position: absolute;
+            font-size: 30px;
+            color: rgba(255, 107, 157, 0.8);
+            animation: floatUp 4s linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Yeni: SVG kalp animasyonu için stiller */
+        .svg-heart {
+            width: 120px;
+            height: 110px;
+            display: block;
+            margin: 0 auto 10px;
+            transform-origin: center;
+            pointer-events: none;
+        }
+        .svg-heart path {
+            fill: transparent;
+            stroke: #ff1e6f;
+            stroke-width: 0.018; /* use pathLength scale */
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            /* pathLength kullanılarak çizim animasyonu için başlangıç */
+            stroke-dasharray: 1;
+            stroke-dashoffset: 1;
+            transition: fill 400ms ease, transform 300ms ease, stroke-width 300ms ease;
+        }
+        /* çizim aşaması */
+        .svg-heart.draw path {
+            animation: heart-draw 900ms ease forwards;
+        }
+        @keyframes heart-draw {
+            to { stroke-dashoffset: 0; }
+        }
+        /* dolma aşaması */
+        .svg-heart.filled path {
+            fill: rgba(255,30,111,0.98);
+            stroke-width: 0;
+        }
+        /* nabız efekti */
+        .svg-heart.pulse {
+            animation: heart-pulse 900ms ease-in-out infinite;
+        }
+        @keyframes heart-pulse {
+            0% { transform: scale(1); filter: drop-shadow(0 6px 20px rgba(255,30,111,0.18)); }
+            50% { transform: scale(1.08); filter: drop-shadow(0 12px 30px rgba(255,30,111,0.25)); }
+            100% { transform: scale(1); }
+        }
+
+        /* overlay açıldığında metin için gecikmeli görünürlük */
+        .love-message h1 {
+            transition: opacity 360ms ease, transform 360ms ease;
+            opacity: 0;
+            transform: translateY(6px);
+        }
+        .love-overlay.show .love-message h1 {
+            transition-delay: 1100ms; /* kalp çizimi tamamlanınca göster */
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive tasarım */
+        @media (max-width: 768px) {
+            .envelope {
+                width: 280px;
+                height: 180px;
+            }
+
+            .letter {
+                width: 350px;
+                padding: 25px;
+            }
+
+            .letter-title {
+                font-size: 18px; /* tablet için küçültüldü */
+                white-space: nowrap;
+            }
+
+            .letter-content p {
+                font-size: 14px;
+            }
+
+            .love-message h1 {
+                font-size: 38px;
+            }
+
+            /* tablet için hafif güncelleme: önceki 36vh -> yeni 32vh */
+            .love-message {
+                transform: translateY(32vh) scale(0.5);
+            }
+            .love-overlay.show .love-message {
+                transform: translateY(32vh) scale(1);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .envelope {
+                width: 250px;
+                height: 160px;
+            }
+
+            .letter {
+                width: 320px;
+                padding: 20px;
+            }
+
+            .letter-title {
+                font-size: 16px; /* mobilde sığması için küçültüldü */
+                white-space: nowrap; /* mobilde de satır atlamasın */
+            }
+
+            .love-message h1 {
+                font-size: 30px;
+            }
+
+            /* mobilde hafif güncelleme: önceki 38vh -> yeni 34vh */
+            .love-message {
+                transform: translateY(34vh) scale(0.5);
+            }
+            .love-overlay.show .love-message {
+                transform: translateY(34vh) scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Arka plan kalpleri -->
+    <div class="floating-hearts" id="floatingHearts"></div>
+
+    <!-- Ana container -->
+    <div class="container">
+        <!-- Zarf -->
+        <div class="envelope-container" id="envelopeContainer">
+            <div class="envelope">
+                <div class="envelope-flap"></div>
+                <div class="heart-seal"></div>
+                <div class="envelope-body">
+                    <div class="envelope-text">💌 Tıkla ve aç</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mektup -->
+        <div class="letter" id="letter">
+            <button class="close-btn" id="closeBtn">×</button>
+            
+            <div class="letter-header">
+                <div class="letter-title">💕 Sevgiyle kodlanmıştır 💕</div>
+            </div>
+
+            <div class="letter-content">
+                <p>💖 Seninle geçirilen en sıradan sabahlar bile bana aitmiş gibi geliyor — sabah mesajın, birlikte içtiğimiz ılık kahve, sessizce paylaştığımız küçük anlar. Bunlar beni sessizce mutlu ediyor.</p>
+                <p>☕️ Plansız bir yürüyüşte durup birbirimize anlattığımız saçma şeyler, aynı şakaya tekrar gülmemiz, gündelik detayları hatırlayışın; bunlar bana seninle olmanın ne demek olduğunu gösteriyor.</p>
+                <p>🌿 Tartıştığımızda susup sonra dürüstçe konuşabilmemiz, hatamızı kabul edip birlikte toparlanabilmemiz güven veriyor — büyük sözlerden çok bu tür davranışlar beni sana yakın kılıyor.</p>
+                <p>🌌 Yanındayken hem rahat hem de canlı hissediyorum; yanında olmak basit şeyleri daha değerli hale getiriyor. Seninle daha çok küçük an biriktirmek istiyorum. 💻❤️</p>
+
+                <!-- Yeni eklenen paragraf -->
+                <p>Bu aralar kafanın fazlasıyla dolu olduğunun farkındayım. Bilmeni isterim ki yanında her zaman bir sevgilin var; belki şu an fiilen yanımda değilim ama kalbimde hep seninle olduğumu hissetmeni istiyorum. Sana küçük bir hediye gönderdim — muhtemelen bu uygulamayı açtığında hediyen çoktan eline ulaşmış olacak. Ne zaman ihtiyacın olursa, sanki benmişim gibi hediyene sarılabilmen için özenle seçtim. Umarım beğenirsin. Öpüyorum.</p>
+            </div>
+
+            <button class="love-button" id="loveButton">
+                Özel Mesajı Gör 💖
+            </button>
+        </div>
+    </div>
+
+    <!-- Sevgi mesajı overlay -->
+    <div class="love-overlay" id="loveOverlay">
+        <!-- canvas animasyonu eklendi -->
+        <canvas id="heart"></canvas>
+
+        <div class="love-message">
+            <!-- Yeni: SVG kalp animasyonu (pathLength=1 ile stroke-dash çalışır) -->
+            <svg class="svg-heart" viewBox="0 0 32 29" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                <path d="M23.6 0c-2.4 0-4.6 1.4-5.6 3.4C16.9 1.4 14.7 0 12.2 0 7 0 3 4 3 9.3 3 16.6 16 29 16 29s13-12.4 13-19.7C29 4 25 0 19.8 0z" pathLength="1"/>
+            </svg>
+
+            <h1>Seni Seviyorum</h1>
+        </div>
+        <div class="floating-love-hearts" id="floatingLoveHearts"></div>
+    </div>
+
+    <script>
+        // DOM elementleri
+        const envelopeContainer = document.getElementById('envelopeContainer');
+        const letter = document.getElementById('letter');
+        const closeBtn = document.getElementById('closeBtn');
+        const loveButton = document.getElementById('loveButton');
+        const loveOverlay = document.getElementById('loveOverlay');
+        const floatingHearts = document.getElementById('floatingHearts');
+        const floatingLoveHearts = document.getElementById('floatingLoveHearts');
+
+        // Arka plan kalpleri oluştur
+        function createBackgroundHearts() {
+            const hearts = ['💕', '💖', '💗', '💓', '💞'];
+            
+            setInterval(() => {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                heart.style.fontSize = (Math.random() * 10 + 15) + 'px';
+                
+                floatingHearts.appendChild(heart);
+                
+                setTimeout(() => {
+                    if (heart.parentNode) {
+                        heart.parentNode.removeChild(heart);
+                    }
+                }, 20000);
+            }, 3000);
+        }
+
+        // Typewriter için yardımcı değişkenler
+        let typingTimeouts = [];
+        function clearTyping() {
+            typingTimeouts.forEach(t => clearTimeout(t));
+            typingTimeouts = [];
+        }
+        function startTypingParagraphs() {
+            clearTyping();
+            const paragraphs = Array.from(document.querySelectorAll('.letter-content p'));
+            // Kaydetilecek orijinal metin
+            paragraphs.forEach(p => {
+                p.dataset.full = p.textContent.trim();
+                p.textContent = '';
+                p.classList.remove('visible');
+            });
+
+            let totalDelay = 200;
+            paragraphs.forEach((p, idx) => {
+                // göstermek için önce opaklık
+                const t1 = setTimeout(() => {
+                    p.classList.add('visible');
+                }, totalDelay);
+                typingTimeouts.push(t1);
+
+                // typewriter karakter karakter
+                const text = p.dataset.full;
+                let k = 0;
+                const speed = 18 + Math.floor(Math.random() * 25); // rastgele hız
+                for (let j = 0; j < text.length; j++) {
+                    const t = setTimeout(((ch, el) => () => {
+                        el.textContent += ch;
+                    })(text[j], p), totalDelay + 220 + j * speed);
+                    typingTimeouts.push(t);
+                    k = j;
+                }
+                // sonraki paragraf için gecikmeyi arttır
+                totalDelay += 220 + Math.max(200, k * speed);
+            });
+        }
+
+        function restoreParagraphsInstant() {
+            clearTyping();
+            const paragraphs = Array.from(document.querySelectorAll('.letter-content p'));
+            paragraphs.forEach(p => {
+                if (p.dataset.full) p.textContent = p.dataset.full;
+                p.classList.add('visible');
+            });
+        }
+
+        // Zarf tıklama (geliştirilmiş: opening -> opened -> show)
+        envelopeContainer.addEventListener('click', function() {
+            if (envelopeContainer.classList.contains('opening') || envelopeContainer.classList.contains('opened')) return;
+
+            envelopeContainer.classList.add('opening');
+
+            setTimeout(() => {
+                envelopeContainer.classList.remove('opening');
+                envelopeContainer.classList.add('opened');
+
+                setTimeout(() => {
+                    letter.classList.add('show');
+                    // typewriter başlat
+                    startTypingParagraphs();
+                }, 160);
+            }, 700);
+        });
+
+        // Mektubu kapat (geliştirilmiş)
+        closeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+
+            // önce mektubu gizle ve yazmayı durdur
+            letter.classList.remove('show');
+            clearTyping();
+
+            envelopeContainer.classList.add('closing');
+
+            setTimeout(() => {
+                envelopeContainer.classList.remove('closing');
+                envelopeContainer.classList.remove('opened');
+
+                // paragraf metinlerini eski haline getir
+                restoreParagraphsInstant();
+
+                // reset mühür stil inline ise temizle
+                const seal = envelopeContainer.querySelector('.heart-seal');
+                if (seal) {
+                    seal.style.opacity = '';
+                    seal.style.transform = '';
+                    seal.style.animation = '';
+                }
+            }, 320);
+        });
+
+        // Sevgi mesajı göster
+        loveButton.addEventListener('click', function() {
+            loveOverlay.classList.add('show');
+            createLoveHearts();
+            startHeartSequence(); // yeni akışı başlat
+        });
+
+        // Sevgi mesajı gizle (overlay'e tıklama)
+        loveOverlay.addEventListener('click', function() {
+            loveOverlay.classList.remove('show');
+            resetHeartSequence();
+            setTimeout(() => {
+                floatingLoveHearts.innerHTML = '';
+            }, 500);
+        });
+
+        // Yeni: kalp animasyonunu başlat / sıfırla
+        function startHeartSequence() {
+            const svg = document.querySelector('.svg-heart');
+            const title = document.querySelector('.love-message h1');
+            if (!svg) return;
+
+            // reset
+            svg.classList.remove('draw', 'filled', 'pulse');
+            title.style.opacity = '0';
+            // Force reflow to restart animations
+            void svg.offsetWidth;
+
+            // 1) stroke çizimi
+            svg.classList.add('draw');
+
+            // 2) çizim tamamlandığında dolma + pulse ve başlığı göster
+            setTimeout(() => {
+                svg.classList.add('filled');
+                // biraz gecikmeyle pulse başlasın
+                setTimeout(() => svg.classList.add('pulse'), 80);
+                // başlığı göster (CSS delay de uygulanıyor)
+                title.style.opacity = '1';
+            }, 950); // çekim süresi (900ms) + küçük tampon
+        }
+
+        function resetHeartSequence() {
+            const svg = document.querySelector('.svg-heart');
+            const title = document.querySelector('.love-message h1');
+            if (!svg) return;
+            svg.classList.remove('draw', 'filled', 'pulse');
+            if (title) {
+                title.style.opacity = '';
+            }
+        }
+
+        // ESC tuşu ile kapat
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (loveOverlay.classList.contains('show')) {
+                    loveOverlay.classList.remove('show');
+                    resetHeartSequence();
+                    setTimeout(() => {
+                        floatingLoveHearts.innerHTML = '';
+                    }, 500);
+                } else if (letter.classList.contains('show')) {
+                    letter.classList.remove('show');
+                    setTimeout(() => {
+                        envelopeContainer.classList.remove('opened');
+                    }, 300);
+                }
+            }
+        });
+
+        // Sayfa yüklendiğinde arka plan kalpleri başlat
+        window.addEventListener('load', function() {
+            createBackgroundHearts();
+        });
+    </script>
+
+    <!-- Animasyon scripti (overlay içindeki canvas'ı çalıştırır) -->
+    <script src="script.js"></script>
+</body>
+</html>
